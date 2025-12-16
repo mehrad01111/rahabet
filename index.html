@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رها بت | بهترین سایت‌های بازی و پیش‌بینی فوتبال</title>
+    <meta name="description" content="معرفی معتبرترین سایت‌های شرط‌بندی و کازینو آنلاین. ورود به هات بت، بکس بت و بری بت با بونوس‌های ویژه و ضرایب بالا.">
+    <meta name="keywords" content="رها بت, هات بت, بکس بت, بری بت, شرط بندی فوتبال, کازینو آنلاین, انفجار, پیش بینی ورزشی">
+    
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://your-domain.com/">
+
+    <style>
+        :root {
+            --primary: #f59e0b; /* رنگ طلایی/نارنجی */
+            --dark: #111827;
+            --light: #f3f4f6;
+            --text: #e5e7eb;
+            --accent: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tahoma', sans-serif; }
+        
+        body { background-color: var(--dark); color: var(--text); line-height: 1.6; }
+        
+        a { text-decoration: none; color: inherit; }
+
+        /* Header */
+        header {
+            background: linear-gradient(90deg, #000, #333);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header h1 { color: var(--primary); font-size: 2rem; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+
+        /* Container */
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        /* Slider */
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            background: #222;
+        }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+        .slide.active { opacity: 1; }
+        .slide-text {
+            background: rgba(0,0,0,0.6);
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.5rem;
+        }
+
+        /* Links Section */
+        .links-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px; }
+        .bet-card {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #374151;
+            transition: transform 0.2s;
+        }
+        .bet-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .bet-title { font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .bet-btn {
+            background: var(--primary);
+            color: #000;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        .bet-btn:hover { background: #d97706; }
+
+        /* Articles (AI Content) */
+        .content-section { margin-bottom: 40px; }
+        article {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        article h2 { color: var(--primary); margin-bottom: 10px; font-size: 1.3rem; }
+        article p { color: #9ca3af; font-size: 0.95rem; text-align: justify; }
+
+        /* Sports Table */
+        .sports-section { margin-bottom: 40px; }
+        .sports-header { text-align: center; margin-bottom: 20px; color: var(--primary); }
+        
+        .matches-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1f2937;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .matches-table th { background: #374151; padding: 15px; color: #fff; }
+        .matches-table td { padding: 15px; text-align: center; border-bottom: 1px solid #374151; font-size: 0.9rem; }
+        
+        .history-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 200; 
+            left: 0; top: 0; 
+            width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.8); 
+            align-items: center; 
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #1f2937;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            border: 1px solid var(--primary);
+        }
+        .close { color: #aaa; float: left; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #fff; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .bet-card { flex-direction: column; text-align: center; gap: 10px; }
+            .matches-table { font-size: 0.8rem; }
+            .matches-table th, .matches-table td { padding: 10px 5px; }
+        }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "رها بت",
+      "description": "معرفی بهترین سایت‌های شرط بندی و پیش بینی فوتبال",
+      "mainEntity": {
+        "@type": "ItemList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "url": "https://hotbet.org/" },
+          { "@type": "ListItem", "position": 2, "url": "https://baxbet.com/" },
+          { "@type": "ListItem", "position": 3, "url": "https://sdgfgycewi.shop/" }
+        ]
+      }
+    }
+    </script>
+</head>
+<body>
+
+    <header>
+        <h1>رها بت</h1>
+    </header>
+
+    <div class="container">
+        
+        <div class="slider" id="slider">
+            <div class="slide active" style="background-image: url('https://placehold.co/800x300/111/f59e0b?text=Excitement');">
+                <span class="slide-text">اوج هیجان در شرط بندی</span>
+            </div>
+            <div class="slide" style="background-image: url('https://placehold.co/800x300/000/ef4444?text=High+Odds');">
+                <span class="slide-text">بالاترین ضرایب فوتبال</span>
+            </div>
+            <div class="slide" style="background-image: url('https://placehold.co/800x300/222/fff?text=Casino');">
+                <span class="slide-text">کازینو آنلاین حرفه‌ای</span>
+            </div>
+        </div>
+
+        <section class="links-section">
+            <div class="bet-card">
+                <span class="bet-title">هات بت (HotBet)</span>
+                <a href="https://hotbet.org/?referer=109523" target="_blank" class="bet-btn" rel="nofollow">ورود و ثبت نام</a>
+            </div>
+
+            <div class="bet-card">
+                <span class="bet-title">بکس بت (BaxBet)</span>
+                <a href="https://baxbet.com/fa?aff=b2c1003-1204996_0" target="_blank" class="bet-btn" rel="nofollow">ورود و ثبت نام</a>
+            </div>
+
+            <div class="bet-card">
+                <span class="bet-title">بری بت (BerryBet)</span>
+                <a href="https://sdgfgycewi.shop/fa/affiliates/?btag=2624188" target="_blank" class="bet-btn" rel="nofollow">ورود و ثبت نام</a>
+            </div>
+        </section>
+
+        <section class="content-section" id="ai-articles">
+            <article>
+                <h2>چرا سایت‌های معتبر شرط‌بندی مهم هستند؟</h2>
+                <p>انتخاب یک سایت شرط‌بندی با درگاه مستقیم بانکی و پشتیبانی ۲۴ ساعته برای کاربران ایرانی اهمیت زیادی دارد. سایت‌هایی مانند هات بت و بکس بت با ارائه بونوس‌های ویژه و ضرایب جهانی، محیطی امن برای پیش‌بینی مسابقات ورزشی فراهم کرده‌اند.</p>
+            </article>
+            <article>
+                <h2>استراتژی‌های برد در بازی انفجار</h2>
+                <p>بازی انفجار یکی از محبوب‌ترین بازی‌های کازینویی است. برای موفقیت در این بازی، مدیریت سرمایه و تحلیل تاریخچه بازی‌ها اهمیت بالایی دارد. سایت‌های معرفی شده در رها بت بهترین الگوریتم‌های ضریب دهی را دارا می‌باشند.</p>
+            </article>
+        </section>
+
+        <section class="sports-section">
+            <h2 class="sports-header">برنامه بازی‌های مهم امروز</h2>
+            <div id="sports-data-container">
+                <table class="matches-table">
+                    <thead>
+                        <tr>
+                            <th>ورزش</th>
+                            <th>تیم‌ها</th>
+                            <th>زمان</th>
+                            <th>تاریخچه</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matches-body">
+                        <tr>
+                            <td>⚽ فوتبال</td>
+                            <td>رئال مادرید - بارسلونا</td>
+                            <td>22:30</td>
+                            <td><button class="history-btn" onclick="openModal('رئال - بارسا')">مشاهده</button></td>
+                        </tr>
+                        <tr>
+                            <td>🏀 بسکتبال</td>
+                            <td>لیکرز - واریرز</td>
+                            <td>04:00</td>
+                            <td><button class="history-btn" onclick="openModal('لیکرز - واریرز')">مشاهده</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <footer style="text-align: center; padding: 20px; font-size: 0.8rem; color: #6b7280;">
+        <p>&copy; 2024 Raha Bet. تمامی حقوق محفوظ است.</p>
+        <p>فعالیت در سایت‌های شرط بندی نیازمند سن قانونی است.</p>
+    </footer>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title" style="color: var(--primary); margin-bottom: 15px;"></h3>
+            <div id="modal-body" style="text-align: right; font-size: 0.9rem;">
+                <ul style="list-style: none;">
+                    <li>بازی 1: برد تیم میزبان (2-1)</li>
+                    <li>بازی 2: مساوی (0-0)</li>
+                    <li>بازی 3: برد تیم مهمان (1-3)</li>
+                    <li>بازی 4: برد تیم میزبان (1-0)</li>
+                    <li>بازی 5: مساوی (2-2)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Slider Logic
+        let slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 4000);
+
+        // 2. Modal Logic
+        const modal = document.getElementById("historyModal");
+        function openModal(matchName) {
+            document.getElementById("modal-title").innerText = "تاریخچه بازی‌های: " + matchName;
+            // در حالت واقعی، اینجا باید یک درخواست به API برای گرفتن تاریخچه زده شود
+            modal.style.display = "flex";
+        }
+        function closeModal() {
+            modal.style.display = "none";
+        }
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // 3. AI & Data Update Logic (Placeholder)
+        /* توضیح فنی مهم:
+           برای امنیت، شما نباید API Key را اینجا قرار دهید.
+           شما باید یک فایل backend (مثلا PHP یا Python) داشته باشید که
+           هر 24 ساعت اجرا شود و فایل HTML را آپدیت کند.
+        */
+        console.log("Page Loaded. Ready for SEO crawling.");
+    </script>
+</body>
+</html>
