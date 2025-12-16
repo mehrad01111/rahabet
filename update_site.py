@@ -4,173 +4,172 @@ from bs4 import BeautifulSoup
 from openai import OpenAI
 import datetime
 from datetime import timedelta
-import random
+import json
 
-# تنظیمات هوش مصنوعی
+# تنظیمات
 api_key = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 # ---------------------------------------------------------
-# تنظیمات هدر برای شبیه‌سازی مرورگر واقعی
+# 1. دریافت بازی‌ها از منبع خارجی (Sky Sports)
 # ---------------------------------------------------------
-def get_headers():
-    return {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "fa-IR,fa;q=0.9",
-        "Referer": "https://www.google.com/",
+def get_english_matches(is_tomorrow=False):
+    # تعیین تاریخ برای لینک
+    target_date = datetime.date.today()
+    if is_tomorrow:
+        target_date = target_date + timedelta(days=1)
+    
+    # فرمت تاریخ اسکای اسپورت: yyyy-mm-dd (مثلا 2024-12-05)
+    date_str = target_date.strftime("%Y-%m-%d")
+    url = f"https://www.skysports.com/football-fixtures/{date_str}"
+    
+    print(f"Fetching from SkySports: {url}")
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36"
     }
 
-# ---------------------------------------------------------
-# منبع 1: طرفداری (شانس موفقیت بالا)
-# ---------------------------------------------------------
-def scrape_tarafdari(date_str=None):
-    # طرفداری معمولا آدرسش به این صورته: /livescore
-    url = "https://www.tarafdari.com/livescore"
-    # نکته: طرفداری آرشیو روزهای آینده رو سخت‌تر میده، پس فقط برای امروز تست میکنیم
-    # اگر تاریخ فردا بود شاید جواب نده، ولی برای امروز عالیه
-    
-    print(f"Trying Source 1 (Tarafdari): {url}")
     try:
-        response = requests.get(url, headers=get_headers(), timeout=10)
+        response = requests.get(url, headers=headers, timeout=15)
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        matches_html = ""
-        # پیدا کردن ردیف‌های بازی در طرفداری
-        # کلاس‌های طرفداری ممکن است فرق کند، این یک سلکتور عمومی است
-        rows = soup.select('.livescore-match-row') 
+        matches_list = []
         
-        if not rows:
-             # تلاش دوم برای ساختار موبایل یا قدیمی
-             rows = soup.select('.match-row')
-
+        # پیدا کردن باکس بازی‌ها
+        # ساختار اسکای اسپورت: هر بازی در یک کلاس fixres__item است
+        match_items = soup.select('.fixres__item')
+        
         count = 0
-        for row in rows:
-            if count >= 5: break
+        for item in match_items:
+            if count >= 6: break # فقط 6 بازی مهم
             
-            teams = row.select('.team-name')
-            time_el = row.select_one('.match-time') or row.select_one('.time')
+            # استخراج نام تیم‌ها
+            participant_1 = item.select_one('.matches__participant--side1 .matches__participant-text')
+            participant_2 = item.select_one('.matches__participant--side2 .matches__participant-text')
+            time_el = item.select_one('.matches__date')
             
-            if len(teams) >= 2 and time_el:
-                home = teams[0].get_text(strip=True)
-                away = teams[1].get_text(strip=True)
-                m_time = time_el.get_text(strip=True)
+            if participant_1 and participant_2 and time_el:
+                p1_text = participant_1.get_text(strip=True)
+                p2_text = participant_2.get_text(strip=True)
+                time_text = time_el.get_text(strip=True) # زمان به وقت انگلیس است
                 
-                match_name = f"{home} - {away}"
-                
-                matches_html += f"""
-                <tr>
-                    <td>⚽ فوتبال</td>
-                    <td>{match_name}</td>
-                    <td>{m_time}</td>
-                    <td><button class="history-btn" onclick="openModal('{match_name}')">مشاهده</button></td>
-                </tr>
-                """
+                # فیلتر کردن لیگ‌های ناشناس (اختیاری - هوش مصنوعی هم می‌تواند فیلتر کند)
+                matches_list.append(f"{p1_text} vs {p2_text} at {time_text} (UK Time)")
                 count += 1
-        
-        return matches_html if matches_html else None
+                
+        if not matches_list:
+            print("No matches found on SkySports page.")
+            return None
+            
+        return matches_list
 
     except Exception as e:
-        print(f"Tarafdari failed: {e}")
+        print(f"Error scraping SkySports: {e}")
         return None
 
 # ---------------------------------------------------------
-# منبع 2: ورزش 3 (اگر طرفداری نشد)
+# 2. تبدیل به فارسی توسط هوش مصنوعی
 # ---------------------------------------------------------
-def scrape_varzesh3(date_str):
-    url = f"https://www.varzesh3.com/livescore?date={date_str}"
-    print(f"Trying Source 2 (Varzesh3): {url}")
-    try:
-        response = requests.get(url, headers=get_headers(), timeout=10)
-        soup = BeautifulSoup(response.content, 'lxml')
-        rows = soup.select('.match-row')
-        
-        matches_html = ""
-        count = 0
-        for row in rows:
-            if count >= 5: break
-            teams = row.select('.team-name')
-            time_el = row.select_one('.time')
-            
-            if len(teams) >= 2 and time_el:
-                home = teams[0].get_text(strip=True)
-                away = teams[1].get_text(strip=True)
-                m_time = time_el.get_text(strip=True)
-                match_name = f"{home} - {away}"
-                
-                matches_html += f"""
-                <tr>
-                    <td>⚽ فوتبال</td>
-                    <td>{match_name}</td>
-                    <td>{m_time}</td>
-                    <td><button class="history-btn" onclick="openModal('{match_name}')">مشاهده</button></td>
-                </tr>
-                """
-                count += 1
-        return matches_html if matches_html else None
-    except Exception as e:
-        print(f"Varzesh3 failed: {e}")
+def translate_matches_to_persian(matches_list):
+    if not matches_list:
         return None
 
-# ---------------------------------------------------------
-# منبع 3: داده‌های زاپاس (Backup) - برای اینکه سایت خالی نباشد
-# ---------------------------------------------------------
-def get_backup_data(is_tomorrow=False):
-    print("Using Backup Data (Fake Data)")
-    if is_tomorrow:
-        return """
-        <tr><td>⚽ فوتبال</td><td>منچستر سیتی - لیورپول</td><td>18:30</td><td><button class="history-btn">مشاهده</button></td></tr>
-        <tr><td>⚽ فوتبال</td><td>بایرن مونیخ - دورتموند</td><td>21:00</td><td><button class="history-btn">مشاهده</button></td></tr>
-        <tr><td>⚽ فوتبال</td><td>سپاهان - پرسپولیس</td><td>16:00</td><td><button class="history-btn">مشاهده</button></td></tr>
-        """
-    else:
-        return """
-        <tr><td>⚽ فوتبال</td><td>رئال مادرید - بارسلونا</td><td>22:30</td><td><button class="history-btn">مشاهده</button></td></tr>
-        <tr><td>⚽ فوتبال</td><td>استقلال - تراکتور</td><td>17:30</td><td><button class="history-btn">مشاهده</button></td></tr>
-        <tr><td>⚽ فوتبال</td><td>آرسنال - چلسی</td><td>20:00</td><td><button class="history-btn">مشاهده</button></td></tr>
-        """
+    matches_str = "\n".join(matches_list)
+    
+    prompt = f"""
+    I have a list of football matches in English (UK Time).
+    Your task:
+    1. Translate team names to Persian.
+    2. Convert the time from UK Time to Tehran Time (+3.5 hours).
+    3. Return the result ONLY as a JSON list of objects.
+    
+    Format:
+    [
+        {{"match": "تیم یک - تیم دو", "time": "HH:MM"}}
+    ]
 
-# ---------------------------------------------------------
-# هوش مصنوعی (مقاله نویسی)
-# ---------------------------------------------------------
-def generate_ai_content():
-    prompt = """
-    یک مقاله خیلی کوتاه (3 پاراگراف) درباره "رازهای برد در پیش‌بینی فوتبال" بنویس.
-    خروجی فقط HTML باشد (<article>, <h2>, <p>).
+    Here is the list:
+    {matches_str}
     """
+
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}]
+            model="gpt-4o-mini", # مدل ارزان و سریع
+            messages=[
+                {"role": "system", "content": "You are a helpful translator assistant. Output JSON only."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={ "type": "json_object" } # تضمین خروجی جیسون
         )
-        return response.choices[0].message.content
-    except:
+        
+        result = response.choices[0].message.content
+        data = json.loads(result)
+        
+        # اگر خروجی داخل کلید خاصی بود آن را بردار، اگر لیست بود خود لیست
+        if "matches" in data:
+            return data["matches"]
+        # گاهی AI مستقیم لیست برنمی‌گرداند، باید مدیریت شود.
+        # اما با response_format معمولا آبجکت برمیگردد.
+        # فرض میکنیم AI خروجی { "matches": [...] } داده است.
+        return list(data.values())[0] # اولین ولیو را برمیگرداند که لیست است
+
+    except Exception as e:
+        print(f"AI Translation Error: {e}")
         return None
 
 # ---------------------------------------------------------
-# تابع اصلی آپدیت
+# 3. تولید HTML نهایی
+# ---------------------------------------------------------
+def create_html_rows(json_data):
+    if not json_data:
+        return "<tr><td colspan='4'>بازی مهمی یافت نشد (بروزرسانی می‌شود)</td></tr>"
+    
+    html_output = ""
+    for item in json_data:
+        # هندل کردن فرمت‌های مختلف جیسون احتمالی
+        match_name = item.get('match') or item.get('game')
+        match_time = item.get('time') or item.get('clock')
+        
+        if match_name and match_time:
+            row = f"""
+            <tr>
+                <td>⚽ فوتبال</td>
+                <td>{match_name}</td>
+                <td>{match_time}</td>
+                <td><button class="history-btn" onclick="openModal('{match_name}')">مشاهده</button></td>
+            </tr>
+            """
+            html_output += row
+            
+    return html_output
+
+# ---------------------------------------------------------
+# 4. آپدیت سایت
 # ---------------------------------------------------------
 def update_site():
-    today = datetime.date.today().strftime("%Y-%m-%d")
-    tomorrow = (datetime.date.today() + timedelta(days=1)).strftime("%Y-%m-%d")
+    print("--- Starting International Update ---")
+    
+    # --- امروز ---
+    english_today = get_english_matches(is_tomorrow=False)
+    persian_today_data = translate_matches_to_persian(english_today)
+    html_today = create_html_rows(persian_today_data)
+    
+    # --- فردا ---
+    english_tomorrow = get_english_matches(is_tomorrow=True)
+    persian_tomorrow_data = translate_matches_to_persian(english_tomorrow)
+    html_tomorrow = create_html_rows(persian_tomorrow_data)
+    
+    # --- مقاله هوش مصنوعی ---
+    try:
+        article_resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": "یک مقاله کوتاه HTML (تگ article) درباره استراتژی مدیریت سرمایه در شرط بندی بنویس."}]
+        )
+        ai_article = article_resp.choices[0].message.content
+    except:
+        ai_article = None
 
-    # دریافت بازی‌های امروز (اولویت: طرفداری -> ورزش3 -> بک‌آپ)
-    today_html = scrape_tarafdari() 
-    if not today_html:
-        today_html = scrape_varzesh3(today)
-    if not today_html:
-        today_html = get_backup_data(is_tomorrow=False)
-
-    # دریافت بازی‌های فردا (اولویت: ورزش3 -> بک‌آپ)
-    # چون طرفداری لینک فردایش سخت است، اول ورزش 3 را چک میکنیم
-    tomorrow_html = scrape_varzesh3(tomorrow)
-    if not tomorrow_html:
-        tomorrow_html = get_backup_data(is_tomorrow=True)
-
-    # دریافت مقاله
-    ai_content = generate_ai_content()
-
-    # اعمال تغییرات
+    # --- ذخیره در فایل ---
     with open("index.html", "r", encoding="utf-8") as f:
         soup = BeautifulSoup(f.read(), 'html.parser')
 
@@ -178,25 +177,25 @@ def update_site():
     target_today = soup.find(id="matches-body")
     if target_today:
         target_today.clear()
-        target_today.append(BeautifulSoup(today_html, 'html.parser'))
+        target_today.append(BeautifulSoup(html_today, 'html.parser'))
 
     # جایگذاری فردا
     target_tomorrow = soup.find(id="tomorrow-matches-body")
     if target_tomorrow:
         target_tomorrow.clear()
-        target_tomorrow.append(BeautifulSoup(tomorrow_html, 'html.parser'))
-    
+        target_tomorrow.append(BeautifulSoup(html_tomorrow, 'html.parser'))
+        
     # جایگذاری مقاله
-    if ai_content:
-        target_article = soup.find(id="ai-articles")
-        if target_article:
-            target_article.clear()
-            target_article.append(BeautifulSoup(ai_content, 'html.parser'))
+    if ai_article:
+        target_art = soup.find(id="ai-articles")
+        if target_art:
+            target_art.clear()
+            target_art.append(BeautifulSoup(ai_article, 'html.parser'))
 
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(str(soup))
-    
-    print("Site Updated Successfully!")
+        
+    print("--- Update Finished Successfully ---")
 
 if __name__ == "__main__":
     update_site()
